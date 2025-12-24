@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Giáng Sinh Vui Vẻ Nhé!</title>
+    <style>
+      :root {
+        --bg: #070a12;
+        --card: #0e1426;
+        --text: #e9eefc;
+        --muted: #aab6d6;
+        --accent: #ffd36b;
+        --accent2: #8be9fd;
+        --ok: #7cff8b;
+        --danger: #ff6b6b;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        --radius: 18px;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        background: radial-gradient(
+            1200px 700px at 50% -10%,
+            rgba(80, 120, 255, 0.18),
+            transparent 55%
+          ),
+          radial-gradient(
+            900px 600px at 20% 30%,
+            rgba(255, 211, 107, 0.1),
+            transparent 60%
+          ),
+          var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+      /* Class chặn cuộn khi đang kéo đồ trên mobile */
+      body.dragging {
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      /* Snow canvas */
+      #snow {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      /* HUD */
+      .hud {
+        position: fixed;
+        inset: 14px 14px auto 14px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 50;
+        pointer-events: none;
+      }
+      .hud .pill {
+        pointer-events: auto;
+        background: rgba(14, 20, 38, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: var(--shadow);
+        border-radius: 999px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        backdrop-filter: blur(12px);
+        width: fit-content;
+      }
+      .countdown {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .timebox {
+        color: var(--text);
+        font-weight: 800;
+        letter-spacing: 0.3px;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+        transition: all 0.2s;
+      }
+      .btn:active {
+        transform: scale(0.96);
+      }
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .btn.primary {
+        border-color: rgba(255, 211, 107, 0.35);
+        background: rgba(255, 211, 107, 0.15);
+        color: #fff;
+      }
+
+      /* Sections */
+      .section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 90px 18px 48px;
+        position: relative;
+        z-index: 3;
+      }
+      .wrap {
+        width: min(980px, 100%);
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 22px;
+        align-items: center;
+      }
+      .card {
+        background: rgba(14, 20, 38, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px;
+        backdrop-filter: blur(10px);
+      }
+      .title {
+        font-size: clamp(26px, 4vw, 44px);
+        line-height: 1.1;
+        margin: 0 0 10px 0;
+        letter-spacing: -0.4px;
+      }
+      .desc {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .meta {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 13px;
+      }
+      .tag {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      /* Parallax */
+      .parallax {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.85;
+        z-index: 1;
+      }
+      .blob {
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 35%,
+          rgba(255, 211, 107, 0.55),
+          rgba(255, 211, 107, 0.08) 55%,
+          transparent 70%
+        );
+        mix-blend-mode: screen;
+      }
+      .star {
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(139, 233, 253, 0.55),
+          rgba(139, 233, 253, 0.08) 55%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        mix-blend-mode: screen;
+      }
+      .parallax[data-pos="l"] {
+        left: -80px;
+        top: 120px;
+      }
+      .parallax[data-pos="r"] {
+        right: -90px;
+        top: 140px;
+      }
+      .parallax[data-pos="rb"] {
+        right: -120px;
+        bottom: 80px;
+      }
+
+      /* GAME LAYOUT */
+      .gameWrap {
+        width: min(1080px, 100%);
+        display: grid;
+        grid-template-columns: 1fr 1.3fr 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+      .panelTitle {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        letter-spacing: -0.2px;
+      }
+      .small {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      /* Gifts */
+      .gifts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .gift {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 16px;
+        padding: 12px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        min-height: 210px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .gift:hover {
+        background: rgba(255, 255, 255, 0.07);
+      }
+      .gift.disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .gift.opened {
+        border-color: rgba(124, 255, 139, 0.35);
+        background: rgba(124, 255, 139, 0.07);
+      }
+      .gift .k {
+        font-weight: 900;
+        color: var(--accent);
+        font-size: 14px;
+      }
+      .gift .t {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.45;
+      }
+      .gift img {
+        width: 100%;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .gift .ctaRow {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+      }
+      .gift .miniBtn {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 7px 10px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .gift .miniBtn.primary {
+        border-color: rgba(255, 211, 107, 0.35);
+        background: rgba(255, 211, 107, 0.1);
+      }
+
+      /* Ornaments */
+      .ornaments {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 12px;
+        justify-content: center;
+      }
+      .orn {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        display: grid;
+        place-items: center;
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+      }
+      .orn:active {
+        cursor: grabbing;
+        transform: scale(0.95);
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .orn .dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: rgba(255, 211, 107, 0.95);
+        box-shadow: 0 10px 20px rgba(255, 211, 107, 0.25);
+      }
+      /* Màu sắc ornaments */
+      .orn[data-type="blue"] .dot {
+        background: rgba(139, 233, 253, 0.95);
+      }
+      .orn[data-type="green"] .dot {
+        background: rgba(124, 255, 139, 0.95);
+      }
+      .orn[data-type="red"] .dot {
+        background: rgba(255, 107, 107, 0.95);
+      }
+      .orn[data-type="gold"] .dot {
+        background: rgba(255, 211, 107, 0.95);
+      }
+      .orn[data-type="star"] .dot {
+        width: 0;
+        height: 0;
+        border-radius: 0;
+        background: none;
+        position: relative;
+      }
+      .orn[data-type="star"] .dot::before {
+        content: "";
+        width: 24px;
+        height: 24px;
+        display: block;
+        background: rgba(255, 211, 107, 0.95);
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+      }
+      .orn[data-type="garland"] .dot {
+        width: 36px;
+        height: 10px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 211, 107, 0.95),
+          rgba(139, 233, 253, 0.95),
+          rgba(124, 255, 139, 0.95)
+        );
+      }
+
+      /* Tree */
+      .treeStage {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+      .treeArea {
+        position: relative;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: radial-gradient(
+            600px 340px at 50% 20%,
+            rgba(255, 255, 255, 0.06),
+            transparent 60%
+          ),
+          rgba(255, 255, 255, 0.03);
+        min-height: 520px;
+        overflow: hidden;
+        touch-action: none;
+      }
+      .treeSvg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.95;
+        pointer-events: none;
+      }
+      .dropHint {
+        position: absolute;
+        inset: auto 18px 18px 18px;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 12px;
+        text-align: center;
+        padding: 10px;
+        border-radius: 14px;
+        border: 1px dashed rgba(255, 255, 255, 0.16);
+        background: rgba(0, 0, 0, 0.14);
+        pointer-events: none;
+      }
+      .placed {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        pointer-events: none;
+        z-index: 10;
+      }
+      /* Màu sắc placed items */
+      .placed.blue {
+        background: rgba(139, 233, 253, 0.95);
+      }
+      .placed.green {
+        background: rgba(124, 255, 139, 0.95);
+      }
+      .placed.red {
+        background: rgba(255, 107, 107, 0.95);
+      }
+      .placed.gold {
+        background: rgba(255, 211, 107, 0.95);
+      }
+      .placed.garland {
+        width: 66px;
+        height: 18px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 211, 107, 0.9),
+          rgba(139, 233, 253, 0.9),
+          rgba(124, 255, 139, 0.9)
+        );
+      }
+      .placed.star {
+        width: 30px;
+        height: 30px;
+        background: rgba(255, 211, 107, 0.95);
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+        border-radius: 0;
+      }
+
+      /* Lights & Fireworks */
+      .lightsOn .treeArea {
+        box-shadow: 0 0 0 1px rgba(255, 211, 107, 0.12),
+          0 0 80px rgba(255, 211, 107, 0.12);
+        border-color: rgba(255, 211, 107, 0.22);
+      }
+      .glow,
+      .fireworks {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+      .lightsOn .glow,
+      .lightsOn .fireworks {
+        opacity: 1;
+      }
+      .spark {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        animation: pop 1.2s ease-out infinite;
+        opacity: 0;
+      }
+      @keyframes pop {
+        0% {
+          transform: translate(0, 0) scale(0.2);
+          opacity: 0;
+        }
+        15% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--dx), var(--dy)) scale(0);
+          opacity: 0;
+        }
+      }
+
+      /* Progress Bar */
+      .progressRow {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .bar {
+        width: 160px;
+        height: 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 211, 107, 0.9),
+          rgba(139, 233, 253, 0.9)
+        );
+      }
+      .mutedSmall {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 12px;
+        margin: 0;
+      }
+
+      /* Overlay */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 80;
+        padding: 18px;
+        backdrop-filter: blur(4px);
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .modal {
+        width: min(760px, 100%);
+        border-radius: 24px;
+        background: rgba(14, 20, 38, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+      .modalHeader {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .modalTitle {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .modalBody {
+        color: var(--text);
+        line-height: 1.6;
+        font-size: 15px;
+      }
+
+      /* ===== MOBILE RESPONSIVE LOGIC ===== */
+      @media (max-width: 900px) {
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .gameWrap {
+          grid-template-columns: 1fr;
+        }
+
+        /* Reorder: Tree -> Ornaments -> Gifts */
+        #treeStage {
+          order: 1;
+        }
+        .card:has(#ornaments) {
+          order: 2;
+        }
+        .card:has(#gifts) {
+          order: 3;
+        }
+
+        .treeArea {
+          min-height: 400px;
+        }
+        .hud {
+          inset: 10px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+        .hud .pill {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .gifts {
+          grid-template-columns: 1fr;
+        }
+
+        /* Sticky Control Bar */
+        .progressSticky {
+          position: sticky;
+          bottom: 0;
+          z-index: 60;
+          background: rgba(14, 20, 38, 0.9);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          margin: 0 -22px -22px -22px;
+          padding: 12px 22px;
+          border-radius: 0 0 18px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="snow"></canvas>
+
+    <div class="hud">
+      <div class="pill">
+        <div class="countdown">
+          <span>Đếm ngược:</span>
+          <span class="timebox" id="cdText">--:--:--</span>
+        </div>
+        <button
+          class="btn"
+          id="btnEnableAudio"
+          type="button"
+          style="padding: 6px 10px; font-size: 11px"
+        >
+          🔊 Bật nhạc
+        </button>
+      </div>
+    </div>
+
+    <section class="section" id="s1">
+      <div class="parallax blob" data-pos="l"></div>
+      <div class="parallax star" data-pos="r"></div>
+      <div class="wrap">
+        <div class="card">
+          <h1 class="title">Tuyết rơi… ánh đèn… và một chút ngại ngùng.</h1>
+          <p class="desc">
+            Giáng sinh đến rồi. Có một vài điều nho nhỏ tớ muốn gửi gắm, nhưng
+            nói trực tiếp thì... hơi khó. Kéo xuống dưới nhé, có một thử thách
+            nhỏ cho cậu đấy.
+          </p>
+          <div class="meta">
+            <span class="tag">#Noel2024</span><span class="tag">#ForYou</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="game" style="padding-top: 20px">
+      <div class="gameWrap">
+        <div class="card treeStage" id="treeStage">
+          <div class="treeArea" id="treeArea">
+            <div class="glow"></div>
+            <div class="fireworks" id="fireworks"></div>
+            <svg class="treeSvg" viewBox="0 0 600 600" aria-hidden="true">
+              <defs>
+                <linearGradient id="gTree" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="rgba(124,255,139,.75)" />
+                  <stop offset="1" stop-color="rgba(124,255,139,.20)" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M300 80 L180 230 H240 L150 370 H225 L120 520 H480 L375 370 H450 L360 230 H420 Z"
+                fill="url(#gTree)"
+                stroke="rgba(255,255,255,.10)"
+                stroke-width="2"
+              />
+              <rect
+                x="265"
+                y="500"
+                width="70"
+                height="70"
+                rx="10"
+                fill="rgba(255,211,107,.20)"
+                stroke="rgba(255,255,255,.08)"
+              />
+            </svg>
+            <div class="dropHint">👇 Kéo đồ ở dưới thả vào đây 👇</div>
+          </div>
+
+          <div class="progressSticky">
+            <div class="progressRow">
+              <div style="flex: 1">
+                <p class="mutedSmall" style="margin-bottom: 4px">
+                  Tiến độ:
+                  <span
+                    id="placedText"
+                    style="color: var(--accent); font-weight: bold"
+                    >0/6</span
+                  >
+                </p>
+                <div class="bar" style="width: 100%"><i id="barFill"></i></div>
+              </div>
+              <div style="display: flex; gap: 8px">
+                <button class="btn" id="btnClear" type="button">Xóa</button>
+                <button
+                  class="btn primary"
+                  id="btnLights"
+                  type="button"
+                  disabled
+                >
+                  Thắp đèn ✨
+                </button>
+              </div>
+            </div>
+            <p
+              class="small"
+              id="gameStatus"
+              style="margin-top: 8px; font-size: 11px; opacity: 0.7"
+            >
+              Trang trí đủ 6 món để thắp đèn.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="panelTitle">Kho đồ trang trí</h3>
+          <p class="small" style="opacity: 0.7">Chạm và giữ để kéo thả.</p>
+          <div class="ornaments" id="ornaments">
+            <div class="orn" draggable="true" data-type="gold">
+              <div class="dot"></div>
+            </div>
+            <div class="orn" draggable="true" data-type="red">
+              <div class="dot"></div>
+            </div>
+            <div class="orn" draggable="true" data-type="green">
+              <div class="dot"></div>
+            </div>
+            <div class="orn" draggable="true" data-type="blue">
+              <div class="dot"></div>
+            </div>
+            <div class="orn" draggable="true" data-type="star">
+              <div class="dot"></div>
+            </div>
+            <div class="orn" draggable="true" data-type="garland">
+              <div class="dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="giftsCard">
+          <h3 class="panelTitle">Chọn 1 món quà nhé</h3>
+          <p class="small">
+            Thắp đèn xong thì chọn 1 hộp. Chỉ mở được 1 lần thôi đấy!
+          </p>
+
+          <div class="gifts" id="gifts">
+            <div class="gift" data-gift="1">
+              <div class="k">Hộp 1: Chút nắng ấm</div>
+              <img
+                src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=600&auto=format&fit=crop"
+              />
+              <div class="t">Dành cho người có nụ cười tỏa nắng.</div>
+              <div class="ctaRow">
+                <button class="miniBtn primary" type="button" data-open="1">
+                  Mở hộp
+                </button>
+              </div>
+            </div>
+            <div class="gift" data-gift="2">
+              <div class="k">Hộp 2: Ting ting! Trà sữa</div>
+              <img
+                src="https://images.unsplash.com/photo-1592318957354-77f78c5cb369?q=80&w=600&auto=format&fit=crop"
+                style="object-position: center 80%"
+              />
+              <div class="t">Món này cần "ship" trực tiếp.</div>
+              <div class="ctaRow">
+                <button class="miniBtn primary" type="button" data-open="2">
+                  Mở hộp
+                </button>
+              </div>
+            </div>
+            <div class="gift" data-gift="3">
+              <div class="k">Hộp 3: Túi sưởi tâm hồn</div>
+              <img
+                src="https://images.unsplash.com/photo-1576669943533-3a7603469c5a?q=80&w=600&auto=format&fit=crop"
+              />
+              <div class="t">Chút ngọt ngào cho ngày đông.</div>
+              <div class="ctaRow">
+                <button class="miniBtn primary" type="button" data-open="3">
+                  Mở hộp
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <hr
+            style="
+              border: 0;
+              border-top: 1px solid rgba(255, 255, 255, 0.1);
+              margin: 20px 0;
+            "
+          />
+
+          <details>
+            <summary
+              style="cursor: pointer; font-size: 13px; color: var(--muted)"
+            >
+              Cài đặt tên (Cho người gửi)
+            </summary>
+            <div style="margin-top: 10px">
+              <input
+                id="toName"
+                placeholder="Tên crush (Ví dụ: Cậu)"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  margin-bottom: 8px;
+                  border-radius: 8px;
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+                  background: transparent;
+                  color: #fff;
+                "
+              />
+              <input
+                id="fromName"
+                placeholder="Tên bạn (Ví dụ: Tớ)"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  margin-bottom: 8px;
+                  border-radius: 8px;
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+                  background: transparent;
+                  color: #fff;
+                "
+              />
+              <input
+                id="ownerPhone"
+                placeholder="SĐT của bạn"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  margin-bottom: 8px;
+                  border-radius: 8px;
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+                  background: transparent;
+                  color: #fff;
+                "
+              />
+              <button
+                class="btn primary"
+                id="btnApplyNames"
+                style="width: 100%"
+              >
+                Tạo Link Gửi
+              </button>
+              <button
+                class="btn"
+                id="btnResetGift"
+                style="width: 100%; margin-top: 8px"
+              >
+                Reset Quà (Test)
+              </button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <div class="overlay" id="overlay">
+      <div class="modal">
+        <div class="modalHeader">
+          <h3 class="modalTitle" id="modalTitle">Merry Christmas</h3>
+          <button class="btn" id="btnClose" type="button">Đóng</button>
+        </div>
+        <div class="modalBody" id="modalBody"></div>
+        <div style="margin-top: 15px">
+          <button
+            class="btn primary"
+            id="btnPlay"
+            type="button"
+            style="width: 100%"
+          >
+            Phát nhạc 🎶
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <audio id="bgm" preload="auto" loop></audio>
+
+    <script>
+      // =======================
+      // CONFIG
+      // =======================
+      const TARGET_TIME = "2025-12-25T00:00:00+07:00";
+      const AUDIO_URL = "./nhac.mp3"; // Thêm link nhạc MP3 của bạn vào đây
+      const DEFAULT_OWNER_PHONE = "0900000000";
+      const MIN_ORN = 6;
+      const LS_GIFT = "xmas_gift_opened_vCrushMobile";
+      const LS_LIGHTS = "xmas_lights_on_vCrushMobile";
+
+      // Helpers
+      const $ = (q) => document.querySelector(q);
+      const $$ = (q) => Array.from(document.querySelectorAll(q));
+      const safeText = (s) => (s ?? "").toString().trim();
+      const format2 = (n) => String(n).padStart(2, "0");
+
+      // =======================
+      // Snow Effect
+      // =======================
+      (function snow() {
+        const canvas = $("#snow");
+        const ctx = canvas.getContext("2d");
+        let w, h;
+        const flakes = [];
+        const isMobile = window.innerWidth < 768;
+        const N = isMobile ? 40 : 120;
+
+        function resize() {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        }
+        function init() {
+          flakes.length = 0;
+          for (let i = 0; i < N; i++) {
+            flakes.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: Math.random() * 3 + 1,
+              d: Math.random() * N,
+            });
+          }
+        }
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+          ctx.beginPath();
+          for (let i = 0; i < N; i++) {
+            const f = flakes[i];
+            ctx.moveTo(f.x, f.y);
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+          }
+          ctx.fill();
+          move();
+          requestAnimationFrame(draw);
+        }
+        function move() {
+          for (let i = 0; i < N; i++) {
+            const f = flakes[i];
+            f.y += Math.pow(f.d, 2) + 1;
+            f.y = f.y * 0.04;
+            if (f.y > h) f.y = 0;
+            f.x += Math.sin(f.y * 0.01) * 0.5;
+            if (f.x > w) f.x = 0;
+            if (f.x < 0) f.x = w;
+          }
+        }
+        window.addEventListener("resize", () => {
+          resize();
+          init();
+        });
+        resize();
+        init();
+        draw();
+      })();
+
+      // =======================
+      // Countdown
+      // =======================
+      const cdText = $("#cdText");
+      const target = new Date(TARGET_TIME);
+      function tick() {
+        const now = new Date();
+        const diff = target.getTime() - now.getTime();
+        if (diff <= 0) {
+          cdText.textContent = "00:00:00";
+          return;
+        }
+        const s = Math.floor(diff / 1000);
+        const hh = Math.floor(s / 3600);
+        const mm = Math.floor((s % 3600) / 60);
+        const ss = s % 60;
+        cdText.textContent = `${format2(hh)}:${format2(mm)}:${format2(ss)}`;
+      }
+      setInterval(tick, 1000);
+      tick();
+
+      // =======================
+      // Audio
+      // =======================
+      const audio = $("#bgm");
+      const btnEnableAudio = $("#btnEnableAudio");
+      const btnPlay = $("#btnPlay");
+      if (AUDIO_URL) audio.src = AUDIO_URL;
+
+      async function tryPlay() {
+        if (!AUDIO_URL) return;
+        try {
+          await audio.play();
+          btnEnableAudio.textContent = "🔊 Đang phát";
+          window.removeEventListener("click", tryPlay);
+          window.removeEventListener("touchstart", tryPlay);
+        } catch (e) {}
+      }
+      tryPlay();
+      window.addEventListener("click", tryPlay);
+      window.addEventListener("touchstart", tryPlay);
+      btnEnableAudio.addEventListener("click", tryPlay);
+      btnPlay.addEventListener("click", () => {
+        tryPlay();
+        $("#overlay").classList.remove("show");
+      });
+
+      // =======================
+      // Game Logic (Mobile Support)
+      // =======================
+      const ornamentsEl = $("#ornaments");
+      const treeArea = $("#treeArea");
+      const treeStage = $("#treeStage");
+      const statusEl = $("#gameStatus");
+      const btnLights = $("#btnLights");
+      const btnClear = $("#btnClear");
+      const placedText = $("#placedText");
+      const barFill = $("#barFill");
+      let placedCount = 0;
+      let lightsOn = false;
+
+      function updateUI() {
+        placedText.textContent = `${Math.min(placedCount, MIN_ORN)}/${MIN_ORN}`;
+        const pct = Math.min(100, (placedCount / MIN_ORN) * 100);
+        barFill.style.width = pct + "%";
+        btnLights.disabled = placedCount < MIN_ORN;
+      }
+
+      function addItem(type, x, y) {
+        const rect = treeArea.getBoundingClientRect();
+        const relX = x - rect.left;
+        const relY = y - rect.top;
+        if (relX < 0 || relY < 0 || relX > rect.width || relY > rect.height)
+          return false;
+
+        const el = document.createElement("div");
+        el.className = `placed ${type}`;
+        el.style.left = relX + "px";
+        el.style.top = relY + "px";
+        treeArea.appendChild(el);
+        placedCount++;
+        updateUI();
+        return true;
+      }
+
+      // --- MOBILE DRAG LOGIC ---
+      let dragType = null;
+      let ghost = null;
+
+      function createGhost(type, x, y) {
+        if (ghost) ghost.remove();
+        ghost = document.createElement("div");
+        ghost.className = `orn`;
+        ghost.setAttribute("data-type", type);
+        ghost.style.position = "fixed";
+        ghost.style.zIndex = "9999";
+        ghost.style.pointerEvents = "none";
+        ghost.style.opacity = "0.8";
+        ghost.style.transform = "scale(1.2)";
+        const inner = document.createElement("div");
+        inner.className = "dot";
+        ghost.appendChild(inner);
+        document.body.appendChild(ghost);
+        moveGhost(x, y);
+      }
+      function moveGhost(x, y) {
+        if (!ghost) return;
+        const offsetY = 50;
+        ghost.style.left = x - 32 + "px";
+        ghost.style.top = y - 32 - offsetY + "px";
+      }
+
+      ornamentsEl.addEventListener(
+        "touchstart",
+        (e) => {
+          const target = e.target.closest(".orn");
+          if (!target) return;
+          document.body.classList.add("dragging");
+          dragType = target.dataset.type;
+          const touch = e.touches[0];
+          createGhost(dragType, touch.clientX, touch.clientY);
+        },
+        { passive: false }
+      );
+
+      document.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!dragType || !ghost) return;
+          e.preventDefault();
+          const touch = e.touches[0];
+          moveGhost(touch.clientX, touch.clientY);
+        },
+        { passive: false }
+      );
+
+      document.addEventListener("touchend", (e) => {
+        if (!dragType) return;
+        document.body.classList.remove("dragging");
+        const touch = e.changedTouches[0];
+        addItem(dragType, touch.clientX, touch.clientY - 50);
+        if (ghost) ghost.remove();
+        ghost = null;
+        dragType = null;
+      });
+
+      // Desktop fallback
+      ornamentsEl.addEventListener("mousedown", (e) => {
+        const target = e.target.closest(".orn");
+        if (!target) return;
+        dragType = target.dataset.type;
+        createGhost(dragType, e.clientX, e.clientY);
+      });
+      document.addEventListener("mousemove", (e) => {
+        if (!dragType) return;
+        e.preventDefault();
+        moveGhost(e.clientX, e.clientY);
+      });
+      document.addEventListener("mouseup", (e) => {
+        if (!dragType) return;
+        addItem(dragType, e.clientX, e.clientY - 50);
+        if (ghost) ghost.remove();
+        ghost = null;
+        dragType = null;
+      });
+
+      // Buttons
+      btnClear.addEventListener("click", () => {
+        $$(".placed", treeArea).forEach((el) => el.remove());
+        placedCount = 0;
+        updateUI();
+        lightsOn = false;
+        treeStage.classList.remove("lightsOn");
+        btnLights.textContent = "Thắp đèn ✨";
+        applyGiftUI();
+      });
+
+      btnLights.addEventListener("click", () => {
+        lightsOn = !lightsOn;
+        treeStage.classList.toggle("lightsOn", lightsOn);
+        btnLights.textContent = lightsOn ? "Tắt đèn" : "Thắp đèn ✨";
+        if (lightsOn) {
+          applyGiftUI();
+          setTimeout(() => {
+            document
+              .getElementById("giftsCard")
+              .scrollIntoView({ behavior: "smooth" });
+          }, 500);
+        }
+      });
+
+      // =======================
+      // Params & Gifts
+      // =======================
+      const toName = $("#toName");
+      const fromName = $("#fromName");
+      const ownerPhone = $("#ownerPhone");
+      const params = new URLSearchParams(location.search);
+      const to = params.get("to") || "Cậu";
+      const from = params.get("from") || "Tớ";
+      const owner = params.get("owner") || DEFAULT_OWNER_PHONE;
+
+      toName.value = to;
+      fromName.value = from;
+      ownerPhone.value = owner;
+
+      $("#btnApplyNames").addEventListener("click", () => {
+        const u = new URL(location.href);
+        u.searchParams.set("to", toName.value || "Cậu");
+        u.searchParams.set("from", fromName.value || "Tớ");
+        u.searchParams.set("owner", ownerPhone.value || DEFAULT_OWNER_PHONE);
+        history.replaceState({}, "", u.toString());
+        alert("Đã tạo link! Copy link trên thanh địa chỉ để gửi nhé.");
+      });
+
+      let openedGift = localStorage.getItem(LS_GIFT);
+      let isLightsStored = localStorage.getItem(LS_LIGHTS);
+
+      if (isLightsStored === "1") {
+        lightsOn = true;
+        treeStage.classList.add("lightsOn");
+        btnLights.textContent = "Tắt đèn";
+        btnLights.disabled = false;
+        placedCount = MIN_ORN;
+        updateUI();
+      }
+
+      function applyGiftUI() {
+        $$(".gift").forEach((g) => {
+          g.classList.remove("opened", "disabled");
+          if (!lightsOn) {
+            g.classList.add("disabled");
+          } else if (openedGift && g.dataset.gift === openedGift) {
+            g.classList.add("opened");
+          } else if (openedGift) {
+            g.classList.add("disabled");
+          }
+        });
+        $$("[data-open]").forEach((b) => {
+          const p = b.closest(".gift");
+          b.disabled = p.classList.contains("disabled");
+        });
+      }
+      applyGiftUI();
+
+      $("#gifts").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-open]");
+        if (!btn || btn.disabled) return;
+        const id = btn.getAttribute("data-open");
+        if (openedGift) return;
+
+        localStorage.setItem(LS_GIFT, id);
+        openedGift = id;
+        applyGiftUI();
+
+        // --- CÁC LỜI CHÚC TÙY CHỈNH ---
+        let title = "",
+          body = "",
+          showCall = false;
+        if (id === "1") {
+          title = `Gửi ${to} ✨`;
+          body = `Giáng sinh này, tớ không ước gì cao siêu, chỉ mong ${to} luôn giữ được nụ cười rạng rỡ ấy.\n\nMong rằng thế giới của ${to} sẽ luôn nhẹ nhàng và được bao bọc bởi những điều dễ thương.`;
+        } else if (id === "2") {
+          title = "Voucher trà sữa 🧋";
+          body = `Ting ting! ${to} vừa nhận được một ly nước yêu thích từ ${from}.\n\nVoucher này cần "redeem" trực tiếp. Khi nào ${to} rảnh, nhắn ${from} nhé?`;
+          showCall = true;
+        } else {
+          title = "Một chiếc ôm 🤗";
+          body = `Giữa tiết trời se lạnh thế này, hy vọng món quà nhỏ này sẽ mang lại cho ${to} chút ấm áp.\n\nNgủ thật ngon và mơ những giấc mơ thật đẹp nhé!`;
+        }
+        body += `\n\n~ ${from}`;
+
+        $("#modalTitle").textContent = title;
+        $("#modalBody").innerText = body;
+        $("#overlay").classList.add("show");
+
+        // Hiện nút gọi nếu là quà trà sữa
+        if (showCall && owner !== DEFAULT_OWNER_PHONE) {
+          // (Optional: Code hiển thị nút gọi nếu cần)
+        }
+      });
+
+      $("#btnClose").addEventListener("click", () =>
+        $("#overlay").classList.remove("show")
+      );
+      $("#btnResetGift").addEventListener("click", () => {
+        localStorage.removeItem(LS_GIFT);
+        localStorage.removeItem(LS_LIGHTS);
+        location.reload();
+      });
+    </script>
+  </body>
+</html>
