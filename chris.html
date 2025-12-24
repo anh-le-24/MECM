@@ -46,17 +46,13 @@
         color: var(--text);
         overflow-x: hidden;
       }
-      /* Class chặn cuộn khi đang kéo đồ trên mobile */
       body.dragging {
         overflow: hidden;
         touch-action: none;
       }
-
       a {
         color: inherit;
       }
-
-      /* Snow canvas */
       #snow {
         position: fixed;
         inset: 0;
@@ -223,7 +219,7 @@
         bottom: 80px;
       }
 
-      /* GAME LAYOUT */
+      /* GAME GRID */
       .gameWrap {
         width: min(1080px, 100%);
         display: grid;
@@ -243,7 +239,7 @@
         line-height: 1.5;
       }
 
-      /* Gifts */
+      /* Gifts - CẬP NHẬT GIAO DIỆN ẨN QUÀ */
       .gifts {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -258,43 +254,83 @@
         cursor: pointer;
         position: relative;
         overflow: hidden;
-        min-height: 210px;
+        min-height: 220px;
         display: flex;
         flex-direction: column;
         gap: 8px;
+        transition: all 0.3s ease;
       }
       .gift:hover {
         background: rgba(255, 255, 255, 0.07);
+        transform: translateY(-2px);
       }
       .gift.disabled {
-        opacity: 0.45;
+        opacity: 0.5;
         cursor: not-allowed;
+        transform: none;
+        filter: grayscale(0.8);
       }
       .gift.opened {
-        border-color: rgba(124, 255, 139, 0.35);
-        background: rgba(124, 255, 139, 0.07);
+        border-color: rgba(124, 255, 139, 0.5);
+        background: rgba(124, 255, 139, 0.08);
       }
+
       .gift .k {
         font-weight: 900;
         color: var(--accent);
         font-size: 14px;
+        z-index: 2;
       }
-      .gift .t {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.75);
-        line-height: 1.45;
+
+      /* Lớp phủ bí mật */
+      .gift .cover {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        border-radius: 12px;
+        font-size: 40px;
+        transition: opacity 0.5s;
       }
-      .gift img {
+
+      /* Nội dung thật (ẩn mặc định) */
+      .gift .content {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        animation: fadeIn 0.5s ease;
+      }
+      .gift .content img {
         width: 100%;
         height: 110px;
         object-fit: cover;
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
+      .gift .content .t {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.85);
+        line-height: 1.45;
+      }
+
+      /* Logic hiển thị khi mở */
+      .gift.opened .cover {
+        display: none;
+      }
+      .gift.opened .content {
+        display: flex;
+      }
+
       .gift .ctaRow {
         display: flex;
         gap: 8px;
         margin-top: auto;
+        z-index: 2;
       }
       .gift .miniBtn {
         appearance: none;
@@ -302,14 +338,26 @@
         background: rgba(255, 255, 255, 0.06);
         color: var(--text);
         border-radius: 999px;
-        padding: 7px 10px;
+        padding: 7px 12px;
         cursor: pointer;
         font-weight: 700;
         font-size: 12px;
+        width: 100%;
       }
       .gift .miniBtn.primary {
         border-color: rgba(255, 211, 107, 0.35);
         background: rgba(255, 211, 107, 0.1);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       /* Ornaments */
@@ -344,7 +392,6 @@
         background: rgba(255, 211, 107, 0.95);
         box-shadow: 0 10px 20px rgba(255, 211, 107, 0.25);
       }
-      /* Màu sắc ornaments */
       .orn[data-type="blue"] .dot {
         background: rgba(139, 233, 253, 0.95);
       }
@@ -447,7 +494,6 @@
         pointer-events: none;
         z-index: 10;
       }
-      /* Màu sắc placed items */
       .placed.blue {
         background: rgba(139, 233, 253, 0.95);
       }
@@ -490,7 +536,6 @@
         border-radius: 0;
       }
 
-      /* Lights & Fireworks */
       .lightsOn .treeArea {
         box-shadow: 0 0 0 1px rgba(255, 211, 107, 0.12),
           0 0 80px rgba(255, 211, 107, 0.12);
@@ -531,7 +576,6 @@
         }
       }
 
-      /* Progress Bar */
       .progressRow {
         display: flex;
         gap: 10px;
@@ -563,7 +607,6 @@
         margin: 0;
       }
 
-      /* Overlay */
       .overlay {
         position: fixed;
         inset: 0;
@@ -605,7 +648,6 @@
         font-size: 15px;
       }
 
-      /* ===== MOBILE RESPONSIVE LOGIC ===== */
       @media (max-width: 900px) {
         .wrap {
           grid-template-columns: 1fr;
@@ -613,8 +655,6 @@
         .gameWrap {
           grid-template-columns: 1fr;
         }
-
-        /* Reorder: Tree -> Ornaments -> Gifts */
         #treeStage {
           order: 1;
         }
@@ -624,7 +664,6 @@
         .card:has(#gifts) {
           order: 3;
         }
-
         .treeArea {
           min-height: 400px;
         }
@@ -641,8 +680,6 @@
         .gifts {
           grid-template-columns: 1fr;
         }
-
-        /* Sticky Control Bar */
         .progressSticky {
           position: sticky;
           bottom: 0;
@@ -787,46 +824,56 @@
         </div>
 
         <div class="card" id="giftsCard">
-          <h3 class="panelTitle">Chọn 1 món quà nhé</h3>
+          <h3 class="panelTitle">Chọn 1 hộp quà bí mật</h3>
           <p class="small">
-            Thắp đèn xong thì chọn 1 hộp. Chỉ mở được 1 lần thôi đấy!
+            Kết quả sẽ hiện ra sau khi bạn chọn. Chỉ được 1 lần thôi nhé!
           </p>
 
           <div class="gifts" id="gifts">
             <div class="gift" data-gift="1">
-              <div class="k">Hộp 1: Chút nắng ấm</div>
-              <img
-                src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=600&auto=format&fit=crop"
-              />
-              <div class="t">Dành cho người có nụ cười tỏa nắng.</div>
+              <div class="k">Hộp Bí Mật #1</div>
+              <div class="cover">🎁</div>
+              <div class="content">
+                <img
+                  src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=600&auto=format&fit=crop"
+                />
+                <div class="t">Một chút nắng ấm cho ngày đông.</div>
+              </div>
               <div class="ctaRow">
                 <button class="miniBtn primary" type="button" data-open="1">
-                  Mở hộp
+                  Mở ngay
                 </button>
               </div>
             </div>
+
             <div class="gift" data-gift="2">
-              <div class="k">Hộp 2: Ting ting! Trà sữa</div>
-              <img
-                src="https://images.unsplash.com/photo-1592318957354-77f78c5cb369?q=80&w=600&auto=format&fit=crop"
-                style="object-position: center 80%"
-              />
-              <div class="t">Món này cần "ship" trực tiếp.</div>
+              <div class="k">Hộp Bí Mật #2</div>
+              <div class="cover"></div>
+              <div class="content">
+                <img
+                  src="https://images.unsplash.com/photo-1592318957354-77f78c5cb369?q=80&w=600&auto=format&fit=crop"
+                  style="object-position: center 80%"
+                />
+              </div>
               <div class="ctaRow">
                 <button class="miniBtn primary" type="button" data-open="2">
-                  Mở hộp
+                  Mở ngay
                 </button>
               </div>
             </div>
+
             <div class="gift" data-gift="3">
-              <div class="k">Hộp 3: Túi sưởi tâm hồn</div>
-              <img
-                src="https://images.unsplash.com/photo-1576669943533-3a7603469c5a?q=80&w=600&auto=format&fit=crop"
-              />
-              <div class="t">Chút ngọt ngào cho ngày đông.</div>
+              <div class="k">Hộp Bí Mật #3</div>
+              <div class="cover">❄️</div>
+              <div class="content">
+                <img
+                  src="https://images.unsplash.com/photo-1576669943533-3a7603469c5a?q=80&w=600&auto=format&fit=crop"
+                />
+                <div class="t">Túi sưởi tâm hồn.</div>
+              </div>
               <div class="ctaRow">
                 <button class="miniBtn primary" type="button" data-open="3">
-                  Mở hộp
+                  Mở ngay
                 </button>
               </div>
             </div>
@@ -929,25 +976,20 @@
     <audio id="bgm" preload="auto" loop></audio>
 
     <script>
-      // =======================
-      // CONFIG
-      // =======================
       const TARGET_TIME = "2025-12-25T00:00:00+07:00";
-      const AUDIO_URL = "./nhac.mp3"; // Thêm link nhạc MP3 của bạn vào đây
+      // THAY LINK NHẠC CỦA BẠN VÀO ĐÂY:
+      const AUDIO_URL = "./nhac.mp3";
       const DEFAULT_OWNER_PHONE = "0900000000";
       const MIN_ORN = 6;
-      const LS_GIFT = "xmas_gift_opened_vCrushMobile";
-      const LS_LIGHTS = "xmas_lights_on_vCrushMobile";
+      const LS_GIFT = "xmas_gift_secret_v1";
+      const LS_LIGHTS = "xmas_lights_secret_v1";
 
-      // Helpers
       const $ = (q) => document.querySelector(q);
       const $$ = (q) => Array.from(document.querySelectorAll(q));
       const safeText = (s) => (s ?? "").toString().trim();
       const format2 = (n) => String(n).padStart(2, "0");
 
-      // =======================
-      // Snow Effect
-      // =======================
+      /* SNOW EFFECT */
       (function snow() {
         const canvas = $("#snow");
         const ctx = canvas.getContext("2d");
@@ -955,21 +997,19 @@
         const flakes = [];
         const isMobile = window.innerWidth < 768;
         const N = isMobile ? 40 : 120;
-
         function resize() {
           w = canvas.width = window.innerWidth;
           h = canvas.height = window.innerHeight;
         }
         function init() {
           flakes.length = 0;
-          for (let i = 0; i < N; i++) {
+          for (let i = 0; i < N; i++)
             flakes.push({
               x: Math.random() * w,
               y: Math.random() * h,
               r: Math.random() * 3 + 1,
               d: Math.random() * N,
             });
-          }
         }
         function draw() {
           ctx.clearRect(0, 0, w, h);
@@ -1004,9 +1044,7 @@
         draw();
       })();
 
-      // =======================
-      // Countdown
-      // =======================
+      /* COUNTDOWN */
       const cdText = $("#cdText");
       const target = new Date(TARGET_TIME);
       function tick() {
@@ -1025,14 +1063,11 @@
       setInterval(tick, 1000);
       tick();
 
-      // =======================
-      // Audio
-      // =======================
+      /* AUDIO */
       const audio = $("#bgm");
       const btnEnableAudio = $("#btnEnableAudio");
       const btnPlay = $("#btnPlay");
       if (AUDIO_URL) audio.src = AUDIO_URL;
-
       async function tryPlay() {
         if (!AUDIO_URL) return;
         try {
@@ -1051,13 +1086,10 @@
         $("#overlay").classList.remove("show");
       });
 
-      // =======================
-      // Game Logic (Mobile Support)
-      // =======================
+      /* GAME LOGIC */
       const ornamentsEl = $("#ornaments");
       const treeArea = $("#treeArea");
       const treeStage = $("#treeStage");
-      const statusEl = $("#gameStatus");
       const btnLights = $("#btnLights");
       const btnClear = $("#btnClear");
       const placedText = $("#placedText");
@@ -1078,7 +1110,6 @@
         const relY = y - rect.top;
         if (relX < 0 || relY < 0 || relX > rect.width || relY > rect.height)
           return false;
-
         const el = document.createElement("div");
         el.className = `placed ${type}`;
         el.style.left = relX + "px";
@@ -1089,10 +1120,8 @@
         return true;
       }
 
-      // --- MOBILE DRAG LOGIC ---
       let dragType = null;
       let ghost = null;
-
       function createGhost(type, x, y) {
         if (ghost) ghost.remove();
         ghost = document.createElement("div");
@@ -1128,7 +1157,6 @@
         },
         { passive: false }
       );
-
       document.addEventListener(
         "touchmove",
         (e) => {
@@ -1139,7 +1167,6 @@
         },
         { passive: false }
       );
-
       document.addEventListener("touchend", (e) => {
         if (!dragType) return;
         document.body.classList.remove("dragging");
@@ -1149,8 +1176,7 @@
         ghost = null;
         dragType = null;
       });
-
-      // Desktop fallback
+      // Desktop
       ornamentsEl.addEventListener("mousedown", (e) => {
         const target = e.target.closest(".orn");
         if (!target) return;
@@ -1170,7 +1196,6 @@
         dragType = null;
       });
 
-      // Buttons
       btnClear.addEventListener("click", () => {
         $$(".placed", treeArea).forEach((el) => el.remove());
         placedCount = 0;
@@ -1180,7 +1205,6 @@
         btnLights.textContent = "Thắp đèn ✨";
         applyGiftUI();
       });
-
       btnLights.addEventListener("click", () => {
         lightsOn = !lightsOn;
         treeStage.classList.toggle("lightsOn", lightsOn);
@@ -1195,9 +1219,7 @@
         }
       });
 
-      // =======================
-      // Params & Gifts
-      // =======================
+      /* GIFTS & PARAMS */
       const toName = $("#toName");
       const fromName = $("#fromName");
       const ownerPhone = $("#ownerPhone");
@@ -1205,7 +1227,6 @@
       const to = params.get("to") || "Cậu";
       const from = params.get("from") || "Tớ";
       const owner = params.get("owner") || DEFAULT_OWNER_PHONE;
-
       toName.value = to;
       fromName.value = from;
       ownerPhone.value = owner;
@@ -1244,7 +1265,9 @@
         });
         $$("[data-open]").forEach((b) => {
           const p = b.closest(".gift");
-          b.disabled = p.classList.contains("disabled");
+          b.textContent = p.classList.contains("opened") ? "Đã mở" : "Mở ngay";
+          b.disabled =
+            p.classList.contains("disabled") || p.classList.contains("opened");
         });
       }
       applyGiftUI();
@@ -1259,7 +1282,6 @@
         openedGift = id;
         applyGiftUI();
 
-        // --- CÁC LỜI CHÚC TÙY CHỈNH ---
         let title = "",
           body = "",
           showCall = false;
@@ -1267,12 +1289,12 @@
           title = `Gửi ${to} ✨`;
           body = `Giáng sinh này, tớ không ước gì cao siêu, chỉ mong ${to} luôn giữ được nụ cười rạng rỡ ấy.\n\nMong rằng thế giới của ${to} sẽ luôn nhẹ nhàng và được bao bọc bởi những điều dễ thương.`;
         } else if (id === "2") {
-          title = "Voucher trà sữa 🧋";
+          title = "... Giao hàng thành công!";
           body = `Ting ting! ${to} vừa nhận được một ly nước yêu thích từ ${from}.\n\nVoucher này cần "redeem" trực tiếp. Khi nào ${to} rảnh, nhắn ${from} nhé?`;
           showCall = true;
         } else {
-          title = "Một chiếc ôm 🤗";
-          body = `Giữa tiết trời se lạnh thế này, hy vọng món quà nhỏ này sẽ mang lại cho ${to} chút ấm áp.\n\nNgủ thật ngon và mơ những giấc mơ thật đẹp nhé!`;
+          title = "...";
+          body = `Giữa tiết trời se lạnh thế này, hy vọng món quà nhỏ này sẽ mang lại cho ${to} chút ấm áp.Hôm sau nấu cơm cho ăn ké với nhé`;
         }
         body += `\n\n~ ${from}`;
 
@@ -1280,9 +1302,8 @@
         $("#modalBody").innerText = body;
         $("#overlay").classList.add("show");
 
-        // Hiện nút gọi nếu là quà trà sữa
         if (showCall && owner !== DEFAULT_OWNER_PHONE) {
-          // (Optional: Code hiển thị nút gọi nếu cần)
+          /* Nút gọi nếu cần */
         }
       });
 
